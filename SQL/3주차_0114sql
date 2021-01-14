@@ -1,0 +1,131 @@
+set serveroutput on
+
+declare
+    lname varchar2(30);
+begin
+    select last_name into lname from employees where employee_id=200;
+end;
+/
+
+declare           -- 주석 가능
+    lname varchar2(30);
+begin
+    select last_name into lname from employees where employee_id=200;
+    dbms_output.put_line('사원 이름: ' || lname);
+end;
+/
+
+<<< 변수 >>>
+declare
+    v_name varchar2(20);
+    n_age number(3);
+    v_event varchar2(30);
+    v_tel constant varchar2(20) := '1111-1111';     -- 초기화 해야한다.
+begin
+    dbms_output.put_line('v_name : ' || v_name);
+    dbms_output.put_line('v_name : ' || n_age);
+    v_name := '홍';
+    n_age := 4;
+    v_event := q'[Mother's Day]';
+    -- v_tel := '1111-2222';                   -- constant로 선언되면 변경 불가.
+    dbms_output.put_line('v_name : ' || v_name);
+    dbms_output.put_line('n_age : ' || n_age);
+    dbms_output.put_line('v_event : ' || v_event);
+end;
+/
+
+declare
+    bi_age binary_integer := 10;
+    bf_height binary_float := 175.5;
+    bd_salary binary_double := 5000.50;
+    d_hire date not null := sysdate;
+    b_pass boolean := true;
+begin
+    dbms_output.put_line( 'binary_integer : ' || bi_age);
+    dbms_output.put_line( 'binary_float : ' || bf_height);
+    dbms_output.put_line( 'binary_double : ' || bd_salary);
+    dbms_output.put_line( 'date : ' || d_hire);
+     -- b_pass;   put_line 매개변수 boolean 안된다.
+     -- bi_age := 'abcd';
+    bi_age := 170.10;
+    bi_age := '1234';
+    dbms_output.put_line( 'binary_integer : ' || bi_age);        -- 형변환 가능
+end;
+/
+
+declare
+    v_lname employees.last_name%TYPE := 500;
+    n_salary employees.salary%TYPE := 2000;
+begin
+    select last_name, salary
+    into v_lname, n_salary
+    from employees where employee_id = 200;
+    dbms_output.put_line(' 이름: ' || v_lname);
+    dbms_output.put_line(' 연봉: ' || n_salary);
+end;
+/
+
+< 바인드 변수 > 전역변수
+-- F5 스크립트 실행으로 해야 된다.
+variable n_salary number;
+set autoprint on
+declare
+    n_salary employees.salary%TYPE := 100;               --타입 끌고 오는것.
+BEGIN
+    select salary into :n_salary from employees where employee_id = 200;
+    dbms_output.put_line( :n_salary);
+    -- :n_salary := n_salary;                                             -- :으로 전역번수 사용가능
+end;
+/
+print n_salary
+select last_name 이름, salary 연봉 from employees
+where salary = :n_salary;
+                                                            -- 전역, 지역변수 이름 같아도 지역변수 값으로 나옴!
+<<< 실행문 작성 >>>>
+<SQL 함수 사용>
+declare
+    v_msg varchar2(30) := 'KOREA';
+    v_nmsg nvarchar2(30) := 'KOREA';
+    v_cmsg char(30) := 'KOREA';
+    v_thire timestamp := '2021/12/31';
+    v_dhire date := '2021/01/14';
+    v_number number(4) := 100;
+    v_integer binary_integer := 100;
+begin
+    dbms_output.put_line( 'varchar2 : ' || length(v_msg));
+    dbms_output.put_line( 'nvarchar2 : ' || length(v_nmsg));
+    dbms_output.put_line( 'char : ' || length(v_cmsg));
+    dbms_output.put_line( 'number : ' || length(v_number));
+    dbms_output.put_line( 'binary_integer : ' || length(v_integer));
+    
+    dbms_output.put_line( 'timestamp : ' || length(v_thire));
+    dbms_output.put_line( 'date : ' || length(v_dhire));
+    dbms_output.put_line( 'timestamp : ' || length(v_thire-sysdate));
+    dbms_output.put_line( 'date : ' || length(v_dhire - sysdate));
+    
+    -- select salary into v_number from employees;       -- 여러 column이라서 하나에 넣을 수 없기에 에러가 난다.
+    select avg(salary) into v_number from employees;      -- 그룹함수를 사용할 수 있다.(sql안에는 가능하기 때문)
+    dbms_output.put_line( 'new_num: ' || v_number);
+    v_number := 10;
+    dbms_output.put_line( 'new_num2: ' || v_number);      
+    -- v_integer := avg(v_number);                        -- 그룹함수를 사용할 수 없다.
+end;
+/
+
+< sequence 사용 >
+select * from user_sequences;
+select employees_seq.NEXTVAL from dual;
+
+declare
+    v_seq number(3);
+    v_next number(3);
+begin
+    -- 11g 이전
+    select employees_seq.NEXTVAL into v_seq from dual;
+    v_next := v_seq;
+    dbms_output.put_line(v_next);
+    
+    -- 11g 이후
+    
+end;
+/
